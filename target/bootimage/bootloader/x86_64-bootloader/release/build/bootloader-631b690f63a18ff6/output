@@ -1,7 +1,0 @@
-cargo:rerun-if-changed=/home/hobo/Documents/dev/practice/mooos/Cargo.toml
-cargo:rustc-link-search=native=/home/hobo/Documents/dev/practice/mooos/target/bootimage/bootloader/x86_64-bootloader/release/build/bootloader-631b690f63a18ff6/out
-cargo:rustc-link-lib=static=kernel_bin-mooos
-cargo:rerun-if-env-changed=KERNEL
-cargo:rerun-if-env-changed=KERNEL_MANIFEST
-cargo:rerun-if-changed=/home/hobo/Documents/dev/practice/mooos/target/x86_64-mooos/debug/mooos
-cargo:rerun-if-changed=build.rs
