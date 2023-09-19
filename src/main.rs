@@ -47,6 +47,7 @@ pub extern "C" fn _start() -> ! {
 }
 
 /// panic_handler in production build?
+#[cfg(not(test))]
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
     println!("{}", info);
@@ -54,6 +55,8 @@ fn panic(info: &PanicInfo) -> ! {
 }
 
 /// panic_handler in test mode
+#[cfg(test)]
+#[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
     serial_println!("[failed]\n");
     serial_println!("Error: {}\n", info);
