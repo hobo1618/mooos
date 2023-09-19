@@ -46,10 +46,18 @@ pub extern "C" fn _start() -> ! {
     loop {}
 }
 
-/// This function is called on panic
+/// panic_handler in production build?
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
     println!("{}", info);
+    loop {}
+}
+
+/// panic_handler in test mode
+fn panic(info: &PanicInfo) -> ! {
+    serial_println!("[failed]\n");
+    serial_println!("Error: {}\n", info);
+    exit_qemu(QemuExitCode::Failed);
     loop {}
 }
 
