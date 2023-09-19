@@ -1,14 +1,14 @@
 use core::fmt;
-use volatile::Volatile;
 use lazy_static::lazy_static;
 use spin::Mutex;
+use volatile::Volatile;
 
 lazy_static! {
     pub static ref WRITER: Mutex<Writer> = Mutex::new(Writer {
         column_position: 0,
         color_code: ColorCode::new(Color::Yellow, Color::Black),
         /// this is where our code accesses the hardware directly
-        /// the vga buffer is located at address 0xb8000 
+        /// the vga buffer is located at address 0xb8000
         /// and presumably the memory at that location is
         /// a 25 x 80, 2-dimensional array of arrays
         ///     > To print a character to the screen in VGA text mode, one has to write it to the text buffer of the VGA hardware. The VGA text buffer is a two-dimensional array with typically 25 rows and 80 columns, which is directly rendered to the screen. (https://os.phil-opp.com/vga-text-mode/)
@@ -133,7 +133,7 @@ impl Writer {
         }
     }
 
-    fn new_line(&mut self) { 
+    fn new_line(&mut self) {
         for row in 1..BUFFER_HEIGHT {
             for col in 0..BUFFER_WIDTH {
                 let character = self.buffer.chars[row][col].read();
@@ -162,7 +162,6 @@ impl fmt::Write for Writer {
     }
 }
 
-
 #[macro_export]
 macro_rules! print {
     ($($arg:tt)*) => ($crate::vga_buffer::_print(format_args!($($arg)*)));
@@ -178,4 +177,26 @@ macro_rules! println {
 pub fn _print(args: fmt::Arguments) {
     use core::fmt::Write;
     WRITER.lock().write_fmt(args).unwrap();
+}
+
+#[test_case]
+fn test_println_simple() {
+    println!("test_println_simple output");
+}
+
+#[test_case]
+fn test_println_many() {
+    for _ in 0..200 {
+        println!("test_println_many output");
+    }
+}
+
+#[test_case]
+fn test_println_output() {
+    let s = "Some test string that fits on a single line";
+    println!("{}", s);
+    for (i, c) in s.chars().enumerate() {
+        let screen_char = WRITER.lock().buffer.chars[BUFFER_HEIGHT - 2][i].read();
+        assert_eq!(char::from(screen_char.ascii_character), c);
+    }
 }
