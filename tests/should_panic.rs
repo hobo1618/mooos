@@ -1,5 +1,6 @@
 #![no_std]
 #![no_main]
+#![feature(abi_x86_interrupt)]
 
 use core::panic::PanicInfo;
 use mooos::{QemuExitCode, exit_qemu, serial_println, serial_print};

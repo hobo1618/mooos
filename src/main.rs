@@ -14,7 +14,19 @@ pub extern "C" fn _start() -> ! {
     mooos::init();
 
     // invoke a breakpoint exception
-    x86_64::instructions::interrupts::int3();
+    // x86_64::instructions::interrupts::int3();
+
+    // trigger a page fault
+    // unsafe {
+    //     *(0xdeadbeef as *mut u8) = 42;
+    // }
+   
+    // trigger a stack overflow
+    fn stack_overflow() {
+        stack_overflow(); // for each recursion, the return address is pushed.
+    }
+
+    stack_overflow();
 
     #[cfg(test)]
     test_main();
