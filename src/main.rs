@@ -4,8 +4,8 @@
 #![test_runner(mooos::test_runner)]
 #![reexport_test_harness_main = "test_main"]
 
-use core::panic::PanicInfo;
 use mooos::println;
+use core::panic::PanicInfo;
 
 #[no_mangle]
 pub extern "C" fn _start() -> ! {
@@ -13,30 +13,21 @@ pub extern "C" fn _start() -> ! {
 
     mooos::init();
 
-    // invoke a breakpoint exception
-    // x86_64::instructions::interrupts::int3();
-
-    // trigger a page fault
-    // unsafe {
-    //     *(0xdeadbeef as *mut u8) = 42;
-    // }
-   
-    // trigger a stack overflow
     fn stack_overflow() {
-        stack_overflow(); // for each recursion, the return address is pushed.
+        stack_overflow(); // for each recursion, the return address is pushed
     }
 
-    stack_overflow();
+    // uncomment line below to trigger a stack overflow
+    // stack_overflow();
 
     #[cfg(test)]
     test_main();
 
-    println!("It didn't crash!!");
-
+    println!("It did not crash!");
     loop {}
 }
 
-/// panic_handler in production build?
+/// This function is called on panic.
 #[cfg(not(test))]
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
@@ -44,7 +35,6 @@ fn panic(info: &PanicInfo) -> ! {
     loop {}
 }
 
-/// panic_handler in test mode
 #[cfg(test)]
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
@@ -55,4 +45,3 @@ fn panic(info: &PanicInfo) -> ! {
 fn trivial_assertion() {
     assert_eq!(1, 1);
 }
-
