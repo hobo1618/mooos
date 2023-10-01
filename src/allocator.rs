@@ -7,12 +7,69 @@ use x86_64::{
     },
     VirtAddr,
 };
+use bump::BumpAllocator;
 
 pub const HEAP_START: usize = 0x_4444_4444_0000;
 pub const HEAP_SIZE: usize = 100 * 1024; // 100 KiB
+pub mod bump;
 
 #[global_allocator]
-static ALLOCATOR: LockedHeap = LockedHeap::empty();
+static ALLOCATOR: Locked<BumpAllocator> = Locked::new(BumpAllocator::new());
+// static ALLOCATOR: LockedHeap = LockedHeap::empty();
+
+
+fn align_up(addr: usize, align: usize) -> usize {
+
+
+    // bitmask sooooo fast.
+    (addr + align - 1) & !(align - 1)
+
+    // toy eg
+    // addr = 0b10101
+    // align = 0b00100 -> power to 2 because single bit set.
+    // align - 1 = 0b00011
+    // !(align - 1) -> 0b11100
+    //
+    // align downwards =>
+    //      addr & !(align - 1) => 0b10101 & 0b11100 => 0b10100
+    //      i.e we've knocked off the least sig bits that constitute the 
+    //      remainder
+    // align upwards =>
+    //      (add + align - 1) & !(align - 1) => (0b10101 + b11100) & 0b11100
+    //      i.e we've bumped the addr up one cycle and then knocked off 
+    //      the least sig bits that constitute the remainder
+    //
+    //      0b10101 + 
+    //       b11100
+    //     0b110001 & 0b011100 => 0b010000
+    // 
+    
+    // soy method right here:
+    // let remainder = addr % align;
+    // if remainder == 0 {
+    //     addr // addr already aligned
+    // } else {
+    //     addr - remainder + align
+    // }
+}
+
+pub struct Locked<A> {
+    inner: spin::Mutex<A>,
+}
+
+impl<A> Locked<A> {
+    pub const fn new(inner: A) -> Self {
+        Locked {
+            inner: spin::Mutex::new(inner),
+        }
+    }
+
+    pub fn lock(&self) -> spin::MutexGuard<A> {
+        self.inner.lock()
+    }
+}
+
+
 
 pub fn init_heap(
     mapper: &mut impl Mapper<Size4KiB>,
