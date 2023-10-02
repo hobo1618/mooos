@@ -9,14 +9,16 @@ use x86_64::{
 };
 use bump::BumpAllocator;
 
+pub mod bump;
+pub mod linked_list;
 pub const HEAP_START: usize = 0x_4444_4444_0000;
 pub const HEAP_SIZE: usize = 100 * 1024; // 100 KiB
-pub mod bump;
+
+
 
 #[global_allocator]
 static ALLOCATOR: Locked<BumpAllocator> = Locked::new(BumpAllocator::new());
 // static ALLOCATOR: LockedHeap = LockedHeap::empty();
-
 
 fn align_up(addr: usize, align: usize) -> usize {
 
