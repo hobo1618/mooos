@@ -1,4 +1,4 @@
-# mooos &#x2014; an OS built in rust
+# mooos&#x2014;an OS built in rust
 
 notes on [Phil Oppermans's blog](https://os.phil-opp.com)
 
@@ -52,6 +52,78 @@ Here's how it's described in the [docs](https://github.com/rust-lang/rust/blob/m
 > 
 > Once stack has been unwound down to the handler frame level, unwinding stops
 > and the last personality routine transfers control to the catch block.
+
+#### the linker, the `C` calling convention, and `ABI`s
+
+When we mark our `_start`ing entry point as `extern "C"` we're effectively tricking the compiler into using the [C calling convention](https://en.wikipedia.org/wiki/Calling_convention), even though we're not actually calling the C runtime.
+Presumably the linker is fooled too, thinking our code depends on the C runtime, and when it can't resolve the dependency, it throws an error.
+
+```bash
+error: linking with `cc` failed: exit code: 1
+  |
+  = note: "cc" […]
+  = note: /usr/lib/gcc/../x86_64-linux-gnu/Scrt1.o: In function `_start':
+          (.text+0x12): undefined reference to `__libc_csu_fini'
+          /usr/lib/gcc/../x86_64-linux-gnu/Scrt1.o: In function `_start':
+          (.text+0x19): undefined reference to `__libc_csu_init'
+          /usr/lib/gcc/../x86_64-linux-gnu/Scrt1.o: In function `_start':
+          (.text+0x25): undefined reference to `__libc_start_main'
+          collect2: error: ld returned 1 exit status
+```
+
+> A linker is a programming tool which combines one or more partial Object Files and libraries into a (more) complete executable object file. .... It will also walk the "missing items" list and check other object file's symbol table to make sure every dependency can be resolve. Be it a single printf symbol that cannot be found anywhere, the linker aborts here and throw you an error message. 
+[source](https://wiki.osdev.org/Linkers)
+
+
+##### 1. To avoid the error, we can change the target. A target triple takes the form:
+
+\[cpu-architecture]-\[vendor]-\[operating-system]-\[ABI]
+
+__Examples:__
+
+OS | target
+- | -
+linux | `x86_64-intel-linux-gnu`
+linux | `x86_64-unknown-linux-gnu`
+windows | `x86_64-pc-windows-msvc`
+none | `thumbv7em-none-eabihf`
+none | `x86_64-unknown-none`
+
+2. We want a target without an underlying OS such as `thumbv7em-none-eabihf` or `x86_64-unknown-none`. Cross compiling to either of these targets would signal to the linker that we don't depend on the C runtime, and the error would go away. Poof!
+
+##### 2. We can also solve the linker error by adding build commands to a `.cargo/config.toml` file.
+
+```rust
+# in .cargo/config.toml
+
+[target.'cfg(target_os = "linux")']
+rustflags = ["-C", "link-arg=-nostartfiles"]
+
+[target.'cfg(target_os = "windows")']
+rustflags = ["-C", "link-args=/ENTRY:_start /SUBSYSTEM:console"]
+
+[target.'cfg(target_os = "macos")']
+rustflags = ["-C", "link-args=-e __start -static -nostartfiles"]
+```
+
+If we run `cargo rustc` now, we'll pass different arguments to the compiler depending on the target os. The above `rustflags`, in other words, are appended automatically as follows:
+
+linux: `cargo rustc -- -C link-arg="-nostartfiles"`
+windows: `cargo rustc -- -C link-args="/ENTRY:_start /SUBSYSTEM:console"`
+macOS: `cargo rustc -- -C link-args="-e __start -static -nostartfiles"`
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
