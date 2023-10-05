@@ -81,13 +81,14 @@ error: linking with `cc` failed: exit code: 1
 
 __Examples:__
 
-OS | target
-- | -
-linux | `x86_64-intel-linux-gnu`
-linux | `x86_64-unknown-linux-gnu`
+OS      | target
+---     | ---
+linux   | `x86_64-intel-linux-gnu`
+linux   | `x86_64-unknown-linux-gnu`
 windows | `x86_64-pc-windows-msvc`
-none | `thumbv7em-none-eabihf`
-none | `x86_64-unknown-none`
+none    | `thumbv7em-none-eabihf`
+none    | `x86_64-unknown-none`
+
 
 2. We want a target without an underlying OS such as `thumbv7em-none-eabihf` or `x86_64-unknown-none`. Cross compiling to either of these targets would signal to the linker that we don't depend on the C runtime, and the error would go away. Poof!
 
