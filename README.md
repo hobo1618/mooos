@@ -1,4 +1,4 @@
-# mooos \u2014 an OS built in rust
+# mooos &#x2014; an OS built in rust
 
 copied from [Phil Oppermans's blog](https://os.phil-opp.com)
 
@@ -13,7 +13,7 @@ copied from [Phil Oppermans's blog](https://os.phil-opp.com)
 This is a "language item", like the "Copy" trait, which "marks a function that is used for implementing [stack unwinding](https://www.bogotobogo.com/cplusplus/stackunwinding.php)."
 A personality function attribute ["permits functions to specify what function to use for exception handling."](https://llvm.org/docs/LangRef.html#id1760).
 Presumably when an exception occurs, then, the *eh_personality* trait tells LLVM how to unwind the stack, i.e. "to run the destructors of all live stack variables in case of a panic....\[which] ensures that all used memory is freed and allows the parent thread to catch the panic and continue execution." 
-Implementation of panics "backed by libgcc/libunwind" are found in [`gcc.rs`](https://github.com/rust-lang/rust/blob/master/library/std/src/sys/personality/gcc.rs). This file appears to define exception handling for different target architectures. Here's how it's described in the docs:
+Here's how it's described in the [docs](https://github.com/rust-lang/rust/blob/master/library/std/src/sys/personality/gcc.rs):
 
 > Implementation of panics backed by libgcc/libunwind (in some form).
 > 
