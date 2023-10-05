@@ -1,6 +1,6 @@
 # mooos &#x2014; an OS built in rust
 
-copied from [Phil Oppermans's blog](https://os.phil-opp.com)
+notes on [Phil Oppermans's blog](https://os.phil-opp.com)
 
 ## 1 Bare bones
 
