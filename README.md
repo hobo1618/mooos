@@ -90,7 +90,7 @@ none    | `thumbv7em-none-eabihf`
 none    | `x86_64-unknown-none`
 
 
-2. We want a target without an underlying OS such as `thumbv7em-none-eabihf` or `x86_64-unknown-none`. Cross compiling to either of these targets would signal to the linker that we don't depend on the C runtime, and the error would go away. Poof!
+We want a target without an underlying OS such as `thumbv7em-none-eabihf` or `x86_64-unknown-none`. Cross compiling to either of these targets would signal to the linker that we don't depend on the C runtime, and the error would go away. Poof!
 
 ##### 2. We can also solve the linker error by adding build commands to a `.cargo/config.toml` file.
 
