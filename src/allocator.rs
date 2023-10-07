@@ -8,6 +8,7 @@ use x86_64::{
     VirtAddr,
 };
 use bump::BumpAllocator;
+use linked_list::LinkedListAllocator;
 
 pub mod bump;
 pub mod linked_list;
@@ -17,7 +18,8 @@ pub const HEAP_SIZE: usize = 100 * 1024; // 100 KiB
 
 
 #[global_allocator]
-static ALLOCATOR: Locked<BumpAllocator> = Locked::new(BumpAllocator::new());
+static ALLOCATOR: Locked<LinkedListAllocator> = Locked::new(LinkedListAllocator::new());
+// static ALLOCATOR: Locked<BumpAllocator> = Locked::new(BumpAllocator::new());
 // static ALLOCATOR: LockedHeap = LockedHeap::empty();
 
 fn align_up(addr: usize, align: usize) -> usize {

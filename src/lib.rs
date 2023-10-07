@@ -1,7 +1,7 @@
 #![no_std]
 #![feature(abi_x86_interrupt)]
 #![feature(custom_test_frameworks)]
-// #![feature(const_mut_refs)]
+#![feature(const_mut_refs)]
 
 #![cfg_attr(test, no_main)]
 #![test_runner(crate::test_runner)]
