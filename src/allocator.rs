@@ -1,30 +1,30 @@
-use alloc::alloc::{GlobalAlloc, Layout};
 use core::ptr::null_mut;
-use linked_list_allocator::LockedHeap;
+use alloc::alloc::{GlobalAlloc, Layout};
 use x86_64::{
     structures::paging::{
         mapper::MapToError, FrameAllocator, Mapper, Page, PageTableFlags, Size4KiB,
     },
     VirtAddr,
 };
-use bump::BumpAllocator;
+
 use linked_list::LinkedListAllocator;
+use bump::BumpAllocator;
+use linked_list_allocator::LockedHeap;
+use fixed_size_block::FixedSizeBlockAllocator;
 
 pub mod bump;
 pub mod linked_list;
+pub mod fixed_size_block;
 pub const HEAP_START: usize = 0x_4444_4444_0000;
 pub const HEAP_SIZE: usize = 100 * 1024; // 100 KiB
 
-
-
 #[global_allocator]
-static ALLOCATOR: Locked<LinkedListAllocator> = Locked::new(LinkedListAllocator::new());
+static ALLOCATOR: Locked<FixedSizeBlockAllocator> = Locked::new(FixedSizeBlockAllocator::new());
+// static ALLOCATOR: Locked<LinkedListAllocator> = Locked::new(LinkedListAllocator::new());
 // static ALLOCATOR: Locked<BumpAllocator> = Locked::new(BumpAllocator::new());
 // static ALLOCATOR: LockedHeap = LockedHeap::empty();
 
 fn align_up(addr: usize, align: usize) -> usize {
-
-
     // bitmask sooooo fast.
     (addr + align - 1) & !(align - 1)
 
@@ -36,18 +36,18 @@ fn align_up(addr: usize, align: usize) -> usize {
     //
     // align downwards =>
     //      addr & !(align - 1) => 0b10101 & 0b11100 => 0b10100
-    //      i.e we've knocked off the least sig bits that constitute the 
+    //      i.e we've knocked off the least sig bits that constitute the
     //      remainder
     // align upwards =>
     //      (add + align - 1) & !(align - 1) => (0b10101 + b11100) & 0b11100
-    //      i.e we've bumped the addr up one cycle and then knocked off 
+    //      i.e we've bumped the addr up one cycle and then knocked off
     //      the least sig bits that constitute the remainder
     //
-    //      0b10101 + 
+    //      0b10101 +
     //       b11100
     //     0b110001 & 0b011100 => 0b010000
-    // 
-    
+    //
+
     // soy method right here:
     // let remainder = addr % align;
     // if remainder == 0 {
@@ -72,8 +72,6 @@ impl<A> Locked<A> {
         self.inner.lock()
     }
 }
-
-
 
 pub fn init_heap(
     mapper: &mut impl Mapper<Size4KiB>,
